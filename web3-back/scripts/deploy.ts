@@ -1,18 +1,36 @@
 import { ethers } from "hardhat";
+import items from "../assets/items.json";
+
+const tokens = (n: number) => {
+  return ethers.utils.parseUnits(n.toString(), "ether");
+};
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const [deployer] = await ethers.getSigners();
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  const Dappazon = await ethers.getContractFactory("Dappazon");
+  const dappazon = await Dappazon.deploy();
+  await dappazon.deployed();
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  console.log(`Deployed Dappazon Contract at: ${dappazon.address}\n`);
 
-  await lock.deployed();
+  for (let i = 0; i < items.length; i++) {
+    const transaction = await dappazon
+      .connect(deployer)
+      .add(
+        items[i].id,
+        items[i].name,
+        items[i].category,
+        items[i].image,
+        tokens(parseFloat(items[i].price)),
+        items[i].rating,
+        items[i].stock
+      );
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+    await transaction.wait();
+
+    console.log(`Listed item ${items[i].id}: ${items[i].name}`);
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
