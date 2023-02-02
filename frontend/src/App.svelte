@@ -41,12 +41,13 @@
     let providerLocal = new ethers.providers.Web3Provider(
       (window as any).ethereum
     );
-    const network = await providerLocal.getNetwork();
+    let network = await providerLocal.getNetwork();
     if (!(network.chainId in config)) {
       if (await requestMetamaskSwitch()) {
         providerLocal = new ethers.providers.Web3Provider(
           (window as any).ethereum
         );
+        network = await providerLocal.getNetwork();
       } else {
         alert("Linking to Metamask failed");
       }
