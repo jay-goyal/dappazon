@@ -1,10 +1,20 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import Rating from "./Rating.svelte";
-  const WEI_CONVERSION = Math.pow(10, 18);
   export let item;
+
+  const WEI_CONVERSION = Math.pow(10, 18);
+  const dispatch = createEventDispatcher();
+
+  function openModal() {
+    dispatch("openModal", {
+      item: item,
+    });
+  }
 </script>
 
-<div class="prod ptr">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="prod ptr" on:click={openModal} role="listitem">
   <img class="prodImg" src={item.image} alt={item.name} />
   <p class="prodDetails hoverUnder">{item.name}</p>
   <Rating rating={item.rating} />
@@ -13,7 +23,7 @@
 
 <style>
   .prodImg {
-    width: 20vw;
+    width: 300px;
     height: auto;
   }
 

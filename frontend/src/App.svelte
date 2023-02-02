@@ -1,81 +1,46 @@
 <script lang="ts">
-  import abi from "./contracts/Dappazon.json";
-  import config from "./contracts/config.json";
   import { Contract, ethers } from "ethers";
-  import { provider, items } from "./stores";
-  import Navbar from "./Components/Navbar.svelte";
   import { onMount } from "svelte";
+  import BuyModal from "./Components/BuyModal.svelte";
   import Item from "./Components/Item.svelte";
-
-  // Change Chain to Goerli
-  async function requestMetamaskSwitch(): Promise<boolean> {
-    try {
-      await (window as any).ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x5" }],
-      });
-      return true;
-    } catch (err) {
-      if (err.code === 4902) {
-        try {
-          await (window as any).ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: "0x5",
-                rpcUrl: "https://goerli.infura.io/v3/",
-              },
-            ],
-          });
-          return true;
-        } catch (err) {
-          console.log(err);
-          return false;
-        }
-      }
-    }
-  }
+  import Navbar from "./Components/Navbar.svelte";
+  import config from "./contracts/config.json";
+  import abi from "./contracts/Dappazon.json";
+  import { connectBlock, requestMetamaskSwitch, setItems } from "./functions";
+  import { dappazon, items, provider } from "./stores";
 
   async function initApp() {
-    // Connect to blockchain
-    let providerLocal = new ethers.providers.Web3Provider(
-      (window as any).ethereum
-    );
-    let network = await providerLocal.getNetwork();
-    if (!(network.chainId in config)) {
-      if (await requestMetamaskSwitch()) {
-        providerLocal = new ethers.providers.Web3Provider(
-          (window as any).ethereum
-        );
-        network = await providerLocal.getNetwork();
-      } else {
-        alert("Linking to Metamask failed");
-      }
-    }
-    provider.setProvider(providerLocal);
+    connectBlock();
 
-    // Get contract ABI
-    const dappazon = new ethers.Contract(
-      config[network.chainId].dappazon,
-      abi.abi,
-      $provider
-    );
-
-    for (let i = 1; i <= 9; i++) {
-      const item = await dappazon.items(i);
-      items.update((oldItems) => {
-        let newItems = oldItems;
-        let cat = [];
-        if (item.category in oldItems) {
-          cat = oldItems[item.category];
-        }
-        cat.push(item);
-        newItems[item.category] = cat;
-        return newItems;
-      });
-    }
+    // Set Items
+    await setItems();
     console.log($items);
   }
+
+  function openModal(evt) {
+    isModal = true;
+    item = evt.detail.item;
+    scrollY = window.scrollY;
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+  }
+
+  function closeModal() {
+    isModal = false;
+    scrollY = window.scrollY;
+    body.style.position = "static";
+    window.scrollTo(0, -1 * scrollY);
+  }
+
+  const body = document.body;
+  let isModal = false;
+  let item;
+  let scrollY = 0;
+  $: pageStyle = `
+    posistion: ${isModal ? "fixed" : "static"};
+    top: ${isModal ? `-${scrollY}px` : "0"};
+    overflow: ${isModal ? "hidden" : "auto"}
+  `;
 
   onMount(() => {
     items.set({});
@@ -92,12 +57,15 @@
         <div class="catName">{cat.charAt(0).toUpperCase()}{cat.slice(1)}</div>
         <div class="prodsCont">
           {#each $items[cat] as item, i (i)}
-            <Item {item} />
+            <Item {item} on:openModal={openModal} />
           {/each}
         </div>
       </div>
     {/each}
   </section>
+  {#if isModal}
+    <BuyModal {item} on:closeModal={closeModal} />
+  {/if}
 </main>
 
 <style>
