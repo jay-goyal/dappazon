@@ -7,7 +7,7 @@
       method: "eth_requestAccounts",
     });
     let accountActive = accounts[0];
-    connectBlock();
+    await connectBlock();
 
     account.login(accountActive);
   }

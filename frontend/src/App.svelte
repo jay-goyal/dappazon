@@ -10,7 +10,7 @@
   import { dappazon, items, provider } from "./stores";
 
   async function initApp() {
-    connectBlock();
+    await connectBlock();
 
     // Set Items
     await setItems();
