@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { connectBlock } from "../functions";
-  import { account } from "../stores";
+  import { connectBlock, setItems } from "../functions";
+  import { account, items } from "../stores";
 
   async function login() {
     let accounts: string[] = await (window as any).ethereum.request({
@@ -8,6 +8,9 @@
     });
     let accountActive = accounts[0];
     await connectBlock();
+    if (Object.keys($items).length === 0) {
+      await setItems();
+    }
 
     account.login(accountActive);
   }

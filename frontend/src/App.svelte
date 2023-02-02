@@ -61,6 +61,8 @@
           {/each}
         </div>
       </div>
+    {:else}
+      <h1>Connect Metamask</h1>
     {/each}
   </section>
   {#if isModal}
