@@ -8,11 +8,9 @@
     });
     let accountActive = accounts[0];
     await connectBlock();
-    if (Object.keys($items).length === 0) {
-      await setItems();
-    }
-
     account.login(accountActive);
+    items.set({});
+    await setItems();
   }
 
   async function logout() {

@@ -1,21 +1,10 @@
 <script lang="ts">
-  import { Contract, ethers } from "ethers";
   import { onMount } from "svelte";
   import BuyModal from "./Components/BuyModal.svelte";
   import Item from "./Components/Item.svelte";
   import Navbar from "./Components/Navbar.svelte";
-  import config from "./contracts/config.json";
-  import abi from "./contracts/Dappazon.json";
-  import { connectBlock, requestMetamaskSwitch, setItems } from "./functions";
-  import { dappazon, items, provider } from "./stores";
-
-  async function initApp() {
-    await connectBlock();
-
-    // Set Items
-    await setItems();
-    console.log($items);
-  }
+  import { connectBlock, setItems } from "./functions";
+  import { items } from "./stores";
 
   function openModal(evt) {
     isModal = true;
@@ -41,11 +30,6 @@
     top: ${isModal ? `-${scrollY}px` : "0"};
     overflow: ${isModal ? "hidden" : "auto"}
   `;
-
-  onMount(() => {
-    items.set({});
-    initApp();
-  });
 </script>
 
 <main>

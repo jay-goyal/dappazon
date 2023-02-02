@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ethers } from "ethers";
   import { createEventDispatcher } from "svelte";
   import { dappazon, provider } from "../stores";
   import Rating from "./Rating.svelte";
@@ -19,6 +18,7 @@
         .buy(item.id, {
           value: item.cost,
         });
+      await tx.wait();
       alert("Purchase Successful");
     } catch (err) {
       alert(err);
