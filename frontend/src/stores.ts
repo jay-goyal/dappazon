@@ -31,3 +31,4 @@ function createDappazon() {
 export const account = createAccount();
 export const provider = createProvider();
 export const dappazon = createDappazon();
+export const items = writable({});
